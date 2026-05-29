@@ -1,0 +1,52 @@
+[
+  {
+    "id": "security",
+    "topic": "Seguridad",
+    "question": "Que deberia hacer el proximo gobierno para recuperar seguridad sin sacrificar derechos?"
+  },
+  {
+    "id": "economy",
+    "topic": "Economia y empleo",
+    "question": "Que tipo de politica economica y laboral le gustaria ver en Colombia?"
+  },
+  {
+    "id": "health",
+    "topic": "Salud",
+    "question": "Como deberia cambiar o protegerse el sistema de salud?"
+  },
+  {
+    "id": "education",
+    "topic": "Educacion",
+    "question": "Cuales deberian ser las prioridades en educacion, ciencia o tecnologia?"
+  },
+  {
+    "id": "environment",
+    "topic": "Ambiente y energia",
+    "question": "Como equilibraria ambiente, energia, petroleo y transicion productiva?"
+  },
+  {
+    "id": "corruption",
+    "topic": "Corrupcion",
+    "question": "Que medidas anticorrupcion considera indispensables?"
+  },
+  {
+    "id": "peace",
+    "topic": "Paz y conflicto",
+    "question": "Que enfoque deberia tener el Estado frente a grupos armados, paz y justicia?"
+  },
+  {
+    "id": "taxes",
+    "topic": "Impuestos y gasto",
+    "question": "Que piensa sobre impuestos, austeridad, gasto social y regla fiscal?"
+  },
+  {
+    "id": "regions",
+    "topic": "Regiones",
+    "question": "Como deberia gobernarse para cerrar brechas entre Bogota, ciudades y regiones?"
+  },
+  {
+    "id": "institutions",
+    "topic": "Instituciones",
+    "question": "Que cambios institucionales o democraticos le parecen urgentes?"
+  }
+]

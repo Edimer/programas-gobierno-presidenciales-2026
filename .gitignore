@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated analysis artifacts
+data/artifacts/
+streamlit.*.log
