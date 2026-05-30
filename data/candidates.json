@@ -1,9 +1,9 @@
 [
   {
     "id": "cepeda",
-    "name": "Ivan Cepeda",
-    "ticket": "Ivan Cepeda & Aida Quilcue",
-    "party": "Pacto Historico",
+    "name": "Iván Cepeda",
+    "ticket": "Iván Cepeda & Aída Quilcué",
+    "party": "Pacto Histórico",
     "position": "Izquierda / oficialismo",
     "pdf": "pdfs/programa-gobierno-2026-2030.pdf",
     "color": "#D84C3F"
@@ -11,25 +11,25 @@
   {
     "id": "espriella",
     "name": "Abelardo de la Espriella",
-    "ticket": "Abelardo de la Espriella & Jose Manuel Restrepo",
+    "ticket": "Abelardo de la Espriella & José Manuel Restrepo",
     "party": "Defensores de la Patria",
     "position": "Derecha dura / outsider",
     "pdf": "pdfs/PROPUESTAS-DEL-TIGRE.pdf",
-    "color": "#111827"
+    "color": "#F8FAFC"
   },
   {
     "id": "valencia",
     "name": "Paloma Valencia",
     "ticket": "Paloma Valencia & Juan Daniel Oviedo",
-    "party": "Centro Democratico",
+    "party": "Centro Democrático",
     "position": "Derecha / centro-derecha",
     "pdf": "pdfs/Plan Integrado de Gobierno Final_compressed.pdf",
     "color": "#2F6FDB"
   },
   {
     "id": "lopez",
-    "name": "Claudia Lopez",
-    "ticket": "Claudia Lopez & Leonardo Huerta",
+    "name": "Claudia López",
+    "ticket": "Claudia López & Leonardo Huerta",
     "party": "Movimiento Imparables",
     "position": "Centro",
     "pdf": "pdfs/Programa-Gobierno-Claudia-Lopez-Leonardo-Huerta.pdf",

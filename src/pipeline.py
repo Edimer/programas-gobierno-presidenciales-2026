@@ -1,14 +1,30 @@
 from __future__ import annotations
 
 import json
+import os
+import re
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from .embeddings import build_backend, model_cache_key
+from .embeddings import build_backend, load_dotenv, model_cache_key
 from .io import chunk_text, extract_pdf_text, load_candidates
-from .settings import ARTIFACT_DIR, CHUNK_OVERLAP, CHUNK_WORDS, DEFAULT_MODEL, ROOT
+from .settings import ARTIFACT_DIR, CHUNK_OVERLAP, CHUNK_WORDS, DEFAULT_MODEL, ROOT, TOPIC_KEYWORDS
+
+
+def _tokenize(value: str) -> set[str]:
+    return set(re.findall(r"[a-záéíóúñ]+", value.lower()))
+
+
+def infer_topic(text: str) -> str:
+    lowered = text.lower()
+    scores = {
+        topic: sum(1 for keyword in keywords if keyword.lower() in lowered)
+        for topic, keywords in TOPIC_KEYWORDS.items()
+    }
+    topic, score = max(scores.items(), key=lambda item: item[1])
+    return topic if score else "Otros temas programáticos"
 
 
 def build_corpus(max_pages: int | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -29,6 +45,7 @@ def build_corpus(max_pages: int | None = None) -> tuple[pd.DataFrame, pd.DataFra
                     "color": candidate["color"],
                     "chunk_id": f"{candidate['id']}-{index:04d}",
                     "chunk_index": index,
+                    "topic": infer_topic(chunk),
                     "text": chunk,
                 }
             )
@@ -82,36 +99,154 @@ def enrich_projection(chunks: pd.DataFrame, embeddings: np.ndarray) -> pd.DataFr
 def top_terms(chunks: pd.DataFrame, top_n: int = 12) -> pd.DataFrame:
     from sklearn.feature_extraction.text import TfidfVectorizer
 
-    stop_words = {
-        "a", "al", "ante", "asi", "como", "con", "contra", "cual", "cuando", "de", "del", "desde",
-        "donde", "e", "el", "ella", "ellos", "en", "entre", "era", "es", "esa", "ese", "esta", "este",
-        "estos", "fue", "ha", "hacia", "hay", "la", "las", "le", "lo", "los", "mas", "mediante",
-        "mi", "no", "o", "para", "pero", "por", "que", "se", "sera", "ser", "si", "sin", "sobre",
-        "son", "su", "sus", "tambien", "un", "una", "unas", "uno", "unos", "y",
-        "colombia", "gobierno", "pais", "nacional", "politica", "politicas", "programa", "propuesta",
+    blocked_tokens = {
+        "a", "al", "ante", "así", "asi", "como", "con", "contra", "cuál", "cual", "cuando", "cada", "de", "del",
+        "desde", "donde", "e", "el", "ella", "ellos", "en", "entre", "era", "es", "esa", "ese",
+        "eso", "esta", "este", "estos", "fue", "ha", "han", "hacia", "hay", "hoy", "la", "las",
+        "le", "lo", "los", "más", "mas", "mediante", "mi", "no", "o", "para", "pero", "por", "que", "se",
+        "será", "sera", "ser", "si", "sin", "sobre", "son", "su", "sus", "también", "tambien", "un", "una", "unas",
+        "uno", "unos", "y", "año", "años", "parte", "forma", "hacer", "debe", "deben", "serán",
+        "seran", "tiene", "tienen", "ser", "estar", "desde", "hasta", "dentro", "frente", "bajo",
+        "gran", "grandes", "mayor", "mejor", "nueva", "nuevo", "nuevas", "nuevos", "primer",
+        "primera", "segundo", "segunda", "sido", "hemos", "vamos", "puede", "pueden", "deberá",
+        "debera", "permitir", "garantizar", "fortalecer", "promover", "impulsar", "crear",
+        "nos", "nosotros", "nosotras", "nuestro", "nuestra", "nuestros", "nuestras", "aquí", "aqui", "allí", "alli", "ahora",
+        "este", "esta", "estos", "estas", "aquello", "aquella", "aquellas", "aquellos",
+        "ivan", "iván", "cepeda", "abelardo", "espriella", "paloma", "valencia", "claudia",
+        "lopez", "lópez", "sergio", "fajardo", "aida", "aída", "quilcue", "quilcué",
+        "colombia", "colombiana", "colombiano", "colombianos", "gobierno", "país", "pais", "nacional",
+        "política", "politica", "políticas", "politicas", "programa", "propuesta", "propuestas", "plan",
+        "programas", "gobiernos", "personas", "ciudadanos", "ciudadanas", "sociedad", "sector",
+        "sectores", "sistema", "sistemas", "modelo", "modelos", "desarrollo", "publico", "público",
+        "publica", "pública", "publicas", "públicas", "través", "traves", "millones", "ciento",
+        "cientos", "pesos", "relevante", "relevantes", "cifra", "cifras", "años", "anos",
+        "2026", "2030", "2025", "2024", "castro", "uribe", "santos", "duque", "trump",
     }
+    candidate_tokens = set()
+    for candidate in load_candidates():
+        candidate_tokens.update(_tokenize(candidate["name"]))
+        candidate_tokens.update(_tokenize(candidate.get("ticket", "")))
+        candidate_tokens.update(_tokenize(candidate.get("party", "")))
+        candidate_tokens.update(_tokenize(candidate.get("position", "")))
+    blocked_tokens.update(candidate_tokens)
+    blocked_tokens.update({"gustavo", "petro", "pacto", "histórico", "historico", "derecha", "izquierda", "centro"})
+    policy_tokens = {
+        "seguridad", "policía", "policia", "justicia", "crimen", "delito", "extorsión", "extorsion",
+        "narcotráfico", "narcotrafico", "paz", "conflicto", "víctimas", "victimas", "cárcel", "carcel",
+        "salud", "hospital", "paciente", "atención", "atencion", "mental", "eps", "medicamentos",
+        "educación", "educacion", "docente", "colegio", "universidad", "ciencia", "tecnología", "tecnologia",
+        "empleo", "trabajo", "laboral", "productividad", "empresa", "inversión", "inversion",
+        "industria", "turismo", "formalización", "formalizacion", "impuestos", "tributaria", "fiscal",
+        "rural", "agrario", "campo", "tierra", "campesino", "alimentos", "regiones", "territorio",
+        "energía", "energia", "petróleo", "petroleo", "gas", "minería", "mineria", "ambiente",
+        "agua", "clima", "biodiversidad", "renovable", "transición", "transicion",
+        "corrupción", "corrupcion", "transparencia", "contratación", "contratacion", "datos",
+        "digital", "instituciones", "democracia", "descentralización", "descentralizacion",
+        "vivienda", "mujeres", "jóvenes", "jovenes", "niñez", "ninez", "cuidado", "pobreza",
+        "infraestructura", "movilidad", "transporte", "vías", "vias", "internet", "conectividad",
+        "reforma", "regulación", "regulacion", "licencias", "financiación", "financiacion",
+        "competitividad", "emprendimiento", "exportaciones", "agricultura", "ganadería", "ganaderia",
+    }
+    generic_phrases = {
+        "bienestar social", "calidad vida", "derechos humanos", "desarrollo integral",
+        "servicios públicos", "servicios publicos", "política pública", "politica publica",
+    }
+
+    vectorizer = TfidfVectorizer(
+        lowercase=True,
+        strip_accents=None,
+        stop_words=list(blocked_tokens),
+        ngram_range=(2, 4),
+        token_pattern=r"(?u)\b[a-zA-ZáéíóúñÁÉÍÓÚÑ]{4,}\b",
+        min_df=2,
+        max_df=0.75,
+        max_features=10_000,
+    )
+    matrix = vectorizer.fit_transform(chunks["text"])
+    terms = np.array(vectorizer.get_feature_names_out())
+
+    def informative_phrase(term: str) -> bool:
+        normalized = term.lower().strip()
+        tokens = normalized.split()
+        if len(tokens) < 2:
+            return False
+        if any(token in blocked_tokens for token in tokens):
+            return False
+        if any(char.isdigit() for char in normalized):
+            return False
+        if len(set(tokens)) == 1:
+            return False
+        if normalized in generic_phrases:
+            return False
+        if tokens[0] in {"mayor", "mejor", "gran", "nueva", "nuevo", "primera", "primer"}:
+            return False
+        if not any(token in policy_tokens for token in tokens):
+            return False
+        return True
+
     rows = []
     for candidate_id, group in chunks.groupby("candidate_id", sort=False):
-        vectorizer = TfidfVectorizer(
-            lowercase=True,
-            strip_accents="unicode",
-            stop_words=list(stop_words),
-            ngram_range=(1, 2),
-            max_features=2500,
-        )
-        matrix = vectorizer.fit_transform(group["text"])
-        scores = np.asarray(matrix.mean(axis=0)).ravel()
-        terms = np.array(vectorizer.get_feature_names_out())
-        for term, score in sorted(zip(terms, scores), key=lambda x: x[1], reverse=True)[:top_n]:
-            rows.append({"candidate_id": candidate_id, "candidate": group.iloc[0]["candidate"], "term": term, "score": float(score)})
+        idx = group.index.to_numpy()
+        other_idx = chunks.index[~chunks.index.isin(idx)].to_numpy()
+        candidate_scores = np.asarray(matrix[idx].mean(axis=0)).ravel()
+        other_scores = np.asarray(matrix[other_idx].mean(axis=0)).ravel()
+        scores = candidate_scores - (0.65 * other_scores)
+        candidate_rows = []
+        for term, score in sorted(zip(terms, scores), key=lambda x: x[1], reverse=True):
+            if score > 0 and informative_phrase(term):
+                candidate_rows.append({"candidate_id": candidate_id, "candidate": group.iloc[0]["candidate"], "term": term, "score": float(score)})
+            if len(candidate_rows) >= top_n * 4:
+                break
+        rows.extend(filter_concepts_with_llm(candidate_rows, top_n=top_n))
     return pd.DataFrame(rows)
+
+
+def filter_concepts_with_llm(rows: list[dict], top_n: int = 12) -> list[dict]:
+    if not rows or os.getenv("OPENAI_FILTER_CONCEPTS", "").lower() not in {"1", "true", "yes"}:
+        return rows[:top_n]
+
+    load_dotenv()
+    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("API_OPENAI")
+    if not api_key:
+        return rows[:top_n]
+
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=api_key)
+        model = os.getenv("OPENAI_CONCEPT_FILTER_MODEL", "gpt-4o-mini")
+        concepts = [row["term"] for row in rows]
+        prompt = (
+            "Filtra esta lista de conceptos extraídos de un programa de gobierno colombiano. "
+            "Devuelve solo conceptos programáticos informativos, no nombres propios, no partidos, "
+            "no frases genéricas, no pronombres, no lugares/personas históricas, no ruido. "
+            f"Elige máximo {top_n}. Responde únicamente JSON con la forma "
+            '{"concepts":["concepto 1","concepto 2"]}.\n\n'
+            + json.dumps(concepts, ensure_ascii=False)
+        )
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "Eres un editor riguroso de análisis político y política pública."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0,
+        )
+        content = response.choices[0].message.content or "{}"
+        selected = json.loads(content).get("concepts", [])
+        selected_set = {item.strip().lower() for item in selected}
+        filtered = [row for row in rows if row["term"].lower() in selected_set]
+        return filtered[:top_n] or rows[:top_n]
+    except Exception:
+        return rows[:top_n]
 
 
 def build_artifacts(model_name: str = DEFAULT_MODEL, max_pages: int | None = None) -> dict:
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     chunks, meta = build_corpus(max_pages=max_pages)
     backend = build_backend(model_name, corpus=chunks["text"].tolist())
-    embeddings = backend.encode([f"passage: {text}" for text in chunks["text"].tolist()])
+    prefix = "" if backend.method == "openai" else "passage: "
+    embeddings = backend.encode([f"{prefix}{text}" for text in chunks["text"].tolist()])
     candidates, centroids = candidate_centroids(chunks, embeddings)
     projected = enrich_projection(chunks, embeddings)
     terms = top_terms(chunks)

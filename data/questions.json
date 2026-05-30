@@ -2,51 +2,111 @@
   {
     "id": "security",
     "topic": "Seguridad",
-    "question": "Que deberia hacer el proximo gobierno para recuperar seguridad sin sacrificar derechos?"
+    "question": "¿Qué debería priorizar el próximo gobierno en seguridad?",
+    "options": [
+      "Combinar seguridad, derechos humanos, justicia local y prevención social.",
+      "Fortalecer la Fuerza Pública, inteligencia y control territorial.",
+      "Recuperar confianza comunitaria con presencia institucional, servicios y denuncia segura.",
+      "Impulsar negociación, sometimiento y transformación territorial en zonas de conflicto."
+    ]
   },
   {
     "id": "economy",
-    "topic": "Economia y empleo",
-    "question": "Que tipo de politica economica y laboral le gustaria ver en Colombia?"
+    "topic": "Economía y empleo",
+    "question": "¿Qué enfoque económico se acerca más a su posición?",
+    "options": [
+      "Aumentar productividad con educación, ciencia, infraestructura y apoyo empresarial.",
+      "Fortalecer el papel del Estado, la redistribución y la economía popular.",
+      "Reducir trabas al sector privado, atraer inversión y formalizar empleo.",
+      "Ordenar las finanzas públicas y focalizar el gasto en programas con resultados medibles."
+    ]
   },
   {
     "id": "health",
     "topic": "Salud",
-    "question": "Como deberia cambiar o protegerse el sistema de salud?"
+    "question": "¿Cómo debería cambiar o protegerse el sistema de salud?",
+    "options": [
+      "Cambiar de fondo el modelo para dar mayor conducción pública y territorial.",
+      "Preservar aseguramiento y EPS, corrigiendo fallas de oportunidad y control.",
+      "Priorizar prevención, salud mental y atención cercana en municipios y barrios.",
+      "Hacer una reforma gradual centrada en atención primaria, calidad y sostenibilidad."
+    ]
   },
   {
     "id": "education",
-    "topic": "Educacion",
-    "question": "Cuales deberian ser las prioridades en educacion, ciencia o tecnologia?"
+    "topic": "Educación, ciencia y tecnología",
+    "question": "¿Cuál debería ser la prioridad educativa?",
+    "options": [
+      "Mejorar calidad, bilingüismo, competencias digitales y conexión con empleo.",
+      "Transformar el sistema con ciencia, tecnología, cultura y cierre de brechas regionales.",
+      "Fortalecer formación docente, jornada escolar y aprendizajes básicos verificables.",
+      "Ampliar cobertura, permanencia y financiación desde primera infancia hasta universidad."
+    ]
   },
   {
     "id": "environment",
-    "topic": "Ambiente y energia",
-    "question": "Como equilibraria ambiente, energia, petroleo y transicion productiva?"
+    "topic": "Ambiente y energía",
+    "question": "¿Cómo equilibraría ambiente, energía y transición productiva?",
+    "options": [
+      "Acelerar renovables sin poner en riesgo empleo, ingresos fiscales ni confiabilidad.",
+      "Mantener petróleo, gas y minería con reglas ambientales claras y seguridad energética.",
+      "Proteger agua, biodiversidad y territorios vulnerables con metas ambientales exigentes.",
+      "Reducir la dependencia extractiva y priorizar protección ambiental y justicia climática."
+    ]
   },
   {
     "id": "corruption",
-    "topic": "Corrupcion",
-    "question": "Que medidas anticorrupcion considera indispensables?"
+    "topic": "Corrupción",
+    "question": "¿Qué medida anticorrupción le parece más importante?",
+    "options": [
+      "Transparencia digital, datos abiertos y seguimiento ciudadano al gasto.",
+      "Reformas políticas e institucionales para reducir clientelismo y captura del Estado.",
+      "Más sanciones, extinción de dominio y control a contratación pública.",
+      "Profesionalizar la administración pública con meritocracia, auditoría y compras simples."
+    ]
   },
   {
     "id": "peace",
     "topic": "Paz y conflicto",
-    "question": "Que enfoque deberia tener el Estado frente a grupos armados, paz y justicia?"
+    "question": "¿Qué enfoque debería tener el Estado frente a grupos armados?",
+    "options": [
+      "Priorizar ofensiva estatal, judicialización y control territorial.",
+      "Profundizar la salida negociada y la implementación territorial de la paz.",
+      "Combinar presión legítima, justicia, inversión social y acuerdos verificables.",
+      "Proteger a comunidades y líderes con presencia estatal permanente y rutas de justicia."
+    ]
   },
   {
     "id": "taxes",
     "topic": "Impuestos y gasto",
-    "question": "Que piensa sobre impuestos, austeridad, gasto social y regla fiscal?"
+    "question": "¿Qué piensa sobre impuestos y gasto público?",
+    "options": [
+      "Mantener sostenibilidad fiscal con gasto mejor focalizado y evaluación de resultados.",
+      "Bajar impuestos y gasto ineficiente para dinamizar inversión.",
+      "Aumentar progresividad tributaria para financiar derechos sociales e inversión pública.",
+      "Cerrar evasión y privilegios antes de crear nuevas cargas para hogares y empresas."
+    ]
   },
   {
     "id": "regions",
     "topic": "Regiones",
-    "question": "Como deberia gobernarse para cerrar brechas entre Bogota, ciudades y regiones?"
+    "question": "¿Cómo cerrar brechas entre Bogotá, ciudades y regiones?",
+    "options": [
+      "Transformación rural, reforma agraria, participación comunitaria y enfoque territorial.",
+      "Infraestructura, seguridad y condiciones para inversión en los territorios.",
+      "Descentralización efectiva, capacidades locales y servicios públicos de calidad.",
+      "Conectar regiones con educación, salud, internet, transporte y oportunidades productivas."
+    ]
   },
   {
     "id": "institutions",
     "topic": "Instituciones",
-    "question": "Que cambios institucionales o democraticos le parecen urgentes?"
+    "question": "¿Qué cambio institucional le parece más urgente?",
+    "options": [
+      "Modernización del Estado, trámites simples y decisiones basadas en evidencia.",
+      "Reformas democráticas, participación ciudadana y garantías de derechos.",
+      "Orden, autoridad, meritocracia y cumplimiento estricto de la ley.",
+      "Mejor coordinación entre Nación, departamentos y municipios para ejecutar mejor."
+    ]
   }
 ]

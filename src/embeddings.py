@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import os
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
+
+from .settings import ROOT
 
 
 def l2_normalize(matrix: np.ndarray) -> np.ndarray:
@@ -18,6 +22,14 @@ class EmbeddingBackend:
     model: object
 
     def encode(self, texts: list[str]) -> np.ndarray:
+        if self.method == "openai":
+            safe_texts = [text.replace("\n", " ").strip() for text in texts]
+            vectors = []
+            for start in range(0, len(safe_texts), 96):
+                response = self.model.embeddings.create(model=self.name, input=safe_texts[start : start + 96])
+                vectors.extend(item.embedding for item in response.data)
+            vectors = np.asarray(vectors, dtype=np.float32)
+            return l2_normalize(vectors)
         if self.method == "sentence-transformers":
             vectors = self.model.encode(
                 texts,
@@ -34,7 +46,31 @@ def model_cache_key(model_name: str) -> str:
     return hashlib.sha1(model_name.encode("utf-8")).hexdigest()[:10]
 
 
+def load_dotenv() -> None:
+    env_path = ROOT / ".env"
+    if not env_path.exists():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
 def build_backend(model_name: str, corpus: list[str] | None = None) -> EmbeddingBackend:
+    load_dotenv()
+    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("API_OPENAI")
+    if model_name.startswith("text-embedding-") or os.getenv("OPENAI_EMBEDDING_MODEL"):
+        try:
+            from openai import OpenAI
+
+            resolved_model = os.getenv("OPENAI_EMBEDDING_MODEL", model_name)
+            return EmbeddingBackend(resolved_model, "openai", OpenAI(api_key=api_key))
+        except Exception:
+            if model_name.startswith("text-embedding-"):
+                raise
+
     try:
         from sentence_transformers import SentenceTransformer
 

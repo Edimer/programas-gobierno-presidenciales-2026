@@ -18,15 +18,16 @@ def candidate_similarity(
     candidate_meta: pd.DataFrame,
     model_name: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    valid = [item for item in answers if item["answer"].strip()]
+    valid = [item for item in answers if str(item.get("answer") or "").strip()]
     if not valid:
-        empty = candidate_meta[["candidate_id", "candidate", "color"]].copy()
+        empty = candidate_meta.copy()
         empty["score"] = 0.0
         empty["confidence"] = 0.0
         return empty, pd.DataFrame()
 
     backend = build_backend(model_name or DEFAULT_MODEL, corpus=chunks["text"].tolist())
-    query_texts = [f"query: {item['topic']}. {item['answer']}" for item in valid]
+    prefix = "" if model_name.startswith("text-embedding-") or model_name == "openai" else "query: "
+    query_texts = [f"{prefix}{item['topic']}. {item['answer']}" for item in valid]
     query_vectors = backend.encode(query_texts)
     sims = cosine_scores(query_vectors, embeddings)
 
@@ -48,7 +49,7 @@ def candidate_similarity(
                     "candidate_id": candidate_id,
                     "candidate": best_chunk["candidate"],
                     "topic": item["topic"],
-                    "question": item["question"],
+                    "question": item.get("question", item["topic"]),
                     "answer": item["answer"],
                     "similarity": score,
                     "evidence": best_chunk["text"][:520],
