@@ -7,9 +7,9 @@ import pandas as pd
 import streamlit as st
 
 from src.io import load_candidates, load_questions
-from src.pipeline import build_artifacts, infer_topic, latest_diagnostics, top_terms
+from src.pipeline import infer_topic, latest_diagnostics, top_terms
 from src.scoring import candidate_similarity
-from src.settings import DEFAULT_MODEL, ROOT
+from src.settings import ROOT
 from src.visuals import projection_scatter, score_bars, similarity_heatmap, terms_chart
 
 
@@ -36,7 +36,7 @@ st.markdown(
 def load_artifacts(view_version: str):
     diagnostics = latest_diagnostics()
     if diagnostics is None:
-        diagnostics = build_artifacts(DEFAULT_MODEL)
+        raise FileNotFoundError("No se encontraron artefactos precomputados en data/artifacts.")
     files = diagnostics["files"]
     paths = {key: ROOT / Path(value) for key, value in files.items()}
     chunks = pd.read_parquet(paths["chunks"])
@@ -102,7 +102,14 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-diagnostics, chunks, projected, terms, candidate_meta, embeddings, _centroids = load_artifacts(ARTIFACT_VIEW_VERSION)
+try:
+    diagnostics, chunks, projected, terms, candidate_meta, embeddings, _centroids = load_artifacts(ARTIFACT_VIEW_VERSION)
+except FileNotFoundError:
+    st.error(
+        "No se encontraron artefactos precomputados para el análisis. "
+        "Antes de publicar, ejecute `python scripts/build_artifacts.py` localmente y suba la carpeta `data/artifacts/` al repositorio."
+    )
+    st.stop()
 source_rows = pd.DataFrame(diagnostics["source_pdfs"])
 canonical_names = pd.DataFrame(load_candidates()).set_index("id")["name"].to_dict()
 if "id" in source_rows:
@@ -186,10 +193,10 @@ with tabs[2]:
 with tabs[3]:
     st.subheader("Metodología")
     st.markdown(
-        """
+        f"""
         1. Se extrae texto de los programas oficiales enlazados en la barra lateral.
         2. Cada programa se divide en fragmentos solapados para comparar ideas concretas, no documentos enteros.
-        3. Los fragmentos se convierten en embeddings semánticos con OpenAI (`text-embedding-3-large` por defecto).
+        3. Los fragmentos se convierten en embeddings semánticos precomputados. En esta versión se usa `{diagnostics["backend"]}`.
         4. La similitud general entre candidaturas se calcula sobre centroides centrados respecto al corpus completo, para evitar que todos los programas aparezcan artificialmente iguales.
         5. La visualización usa UMAP + HDBSCAN para proyectar el mapa semántico y detectar agrupaciones de fragmentos.
         6. La afinidad ciudadana compara respuestas de selección múltiple contra los fragmentos más similares por candidatura y pondera cada tema de 1 a 10.

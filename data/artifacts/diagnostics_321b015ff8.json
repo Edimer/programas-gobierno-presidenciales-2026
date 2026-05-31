@@ -1,0 +1,91 @@
+{
+  "backend": "intfloat/multilingual-e5-base",
+  "method": "sentence-transformers",
+  "chunks": 1215,
+  "candidates": 5,
+  "source_pdfs": [
+    {
+      "id": "cepeda",
+      "name": "Ivan Cepeda",
+      "ticket": "Ivan Cepeda & Aida Quilcue",
+      "party": "Pacto Historico",
+      "position": "Izquierda / oficialismo",
+      "pdf": "pdfs/programa-gobierno-2026-2030.pdf",
+      "color": "#D84C3F",
+      "file": "D:\\Github\\programas-gobierno-presidenciales-2026\\pdfs\\programa-gobierno-2026-2030.pdf",
+      "pages": 433,
+      "pages_read": 433,
+      "empty_or_sparse_pages": 8,
+      "characters": 707831,
+      "chunks": 849
+    },
+    {
+      "id": "espriella",
+      "name": "Abelardo de la Espriella",
+      "ticket": "Abelardo de la Espriella & Jose Manuel Restrepo",
+      "party": "Defensores de la Patria",
+      "position": "Derecha dura / outsider",
+      "pdf": "pdfs/PROPUESTAS-DEL-TIGRE.pdf",
+      "color": "#111827",
+      "file": "D:\\Github\\programas-gobierno-presidenciales-2026\\pdfs\\PROPUESTAS-DEL-TIGRE.pdf",
+      "pages": 3,
+      "pages_read": 3,
+      "empty_or_sparse_pages": 0,
+      "characters": 21904,
+      "chunks": 26
+    },
+    {
+      "id": "valencia",
+      "name": "Paloma Valencia",
+      "ticket": "Paloma Valencia & Juan Daniel Oviedo",
+      "party": "Centro Democratico",
+      "position": "Derecha / centro-derecha",
+      "pdf": "pdfs/Plan Integrado de Gobierno Final_compressed.pdf",
+      "color": "#2F6FDB",
+      "file": "D:\\Github\\programas-gobierno-presidenciales-2026\\pdfs\\Plan Integrado de Gobierno Final_compressed.pdf",
+      "pages": 19,
+      "pages_read": 19,
+      "empty_or_sparse_pages": 0,
+      "characters": 43515,
+      "chunks": 50
+    },
+    {
+      "id": "lopez",
+      "name": "Claudia Lopez",
+      "ticket": "Claudia Lopez & Leonardo Huerta",
+      "party": "Movimiento Imparables",
+      "position": "Centro",
+      "pdf": "pdfs/Programa-Gobierno-Claudia-Lopez-Leonardo-Huerta.pdf",
+      "color": "#20A67A",
+      "file": "D:\\Github\\programas-gobierno-presidenciales-2026\\pdfs\\Programa-Gobierno-Claudia-Lopez-Leonardo-Huerta.pdf",
+      "pages": 37,
+      "pages_read": 37,
+      "empty_or_sparse_pages": 6,
+      "characters": 85319,
+      "chunks": 95
+    },
+    {
+      "id": "fajardo",
+      "name": "Sergio Fajardo",
+      "ticket": "Sergio Fajardo & Edna Bonilla",
+      "party": "Dignidad y Compromiso",
+      "position": "Centro",
+      "pdf": "pdfs/Fajardo.pdf",
+      "color": "#E0A11B",
+      "file": "D:\\Github\\programas-gobierno-presidenciales-2026\\pdfs\\Fajardo.pdf",
+      "pages": 62,
+      "pages_read": 62,
+      "empty_or_sparse_pages": 1,
+      "characters": 188067,
+      "chunks": 195
+    }
+  ],
+  "files": {
+    "chunks": "data\\artifacts\\chunks_321b015ff8.parquet",
+    "projection": "data\\artifacts\\projection_321b015ff8.parquet",
+    "terms": "data\\artifacts\\terms_321b015ff8.parquet",
+    "embeddings": "data\\artifacts\\embeddings_321b015ff8.npy",
+    "centroids": "data\\artifacts\\centroids_321b015ff8.npy",
+    "candidate_meta": "data\\artifacts\\candidate_meta_321b015ff8.parquet"
+  }
+}

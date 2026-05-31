@@ -217,6 +217,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Generated analysis artifacts
-data/artifacts/
+# Local Streamlit logs
 streamlit.*.log
