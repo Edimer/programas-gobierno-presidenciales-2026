@@ -273,12 +273,12 @@ def build_artifacts(model_name: str = DEFAULT_MODEL, max_pages: int | None = Non
         "candidates": int(len(candidates)),
         "source_pdfs": meta.to_dict(orient="records"),
         "files": {
-            "chunks": str(chunks_path.relative_to(ROOT)),
-            "projection": str(projected_path.relative_to(ROOT)),
-            "terms": str(terms_path.relative_to(ROOT)),
-            "embeddings": str(embeddings_path.relative_to(ROOT)),
-            "centroids": str(centroids_path.relative_to(ROOT)),
-            "candidate_meta": str(candidates_path.relative_to(ROOT)),
+            "chunks": chunks_path.relative_to(ROOT).as_posix(),
+            "projection": projected_path.relative_to(ROOT).as_posix(),
+            "terms": terms_path.relative_to(ROOT).as_posix(),
+            "embeddings": embeddings_path.relative_to(ROOT).as_posix(),
+            "centroids": centroids_path.relative_to(ROOT).as_posix(),
+            "candidate_meta": candidates_path.relative_to(ROOT).as_posix(),
         },
     }
     diagnostics_path.write_text(json.dumps(diagnostics, ensure_ascii=False, indent=2), encoding="utf-8")

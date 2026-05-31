@@ -38,7 +38,7 @@ def load_artifacts(view_version: str):
     if diagnostics is None:
         raise FileNotFoundError("No se encontraron artefactos precomputados en data/artifacts.")
     files = diagnostics["files"]
-    paths = {key: ROOT / Path(value) for key, value in files.items()}
+    paths = {key: ROOT / Path(value.replace("\\", "/")) for key, value in files.items()}
     chunks = pd.read_parquet(paths["chunks"])
     projected = pd.read_parquet(paths["projection"])
     terms = pd.read_parquet(paths["terms"])
@@ -104,11 +104,12 @@ with st.sidebar:
 
 try:
     diagnostics, chunks, projected, terms, candidate_meta, embeddings, _centroids = load_artifacts(ARTIFACT_VIEW_VERSION)
-except FileNotFoundError:
+except FileNotFoundError as exc:
     st.error(
         "No se encontraron artefactos precomputados para el análisis. "
         "Antes de publicar, ejecute `python scripts/build_artifacts.py` localmente y suba la carpeta `data/artifacts/` al repositorio."
     )
+    st.caption(f"Detalle técnico: {exc}")
     st.stop()
 source_rows = pd.DataFrame(diagnostics["source_pdfs"])
 canonical_names = pd.DataFrame(load_candidates()).set_index("id")["name"].to_dict()
