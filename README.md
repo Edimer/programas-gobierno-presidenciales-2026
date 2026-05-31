@@ -3,9 +3,9 @@
 Explorador semántico de programas presidenciales de Colombia 2026. La app extrae texto de los PDFs, divide cada programa en fragmentos comparables, calcula embeddings de OpenAI y muestra:
 
 - mapa semántico de propuestas,
-- matriz de similitud relativa entre candidaturas,
-- énfasis temáticos por candidatura,
-- términos distintivos por programa,
+- ejes programáticos interpretables por candidatura,
+- lectura temática normalizada dentro de cada programa,
+- conceptos distintivos por programa,
 - cuestionario ciudadano de selección múltiple con afinidad semántica.
 
 ## Uso local
@@ -30,6 +30,25 @@ streamlit run app.py
 
 La app espera una variable `API_OPENAI` u `OPENAI_API_KEY` en `.env`. También puede definirse `OPENAI_EMBEDDING_MODEL`; si no se define, se usa `text-embedding-3-large`.
 
+## Despliegue en Streamlit Cloud
+
+La app está preparada para publicarse con artefactos precomputados. Esto evita recalcular embeddings al cargar y reduce el riesgo de errores por límites de API.
+
+Antes de hacer `push`, verifique que estén incluidos estos elementos:
+
+- `data/artifacts/` con los archivos `.parquet`, `.npy` y `diagnostics_*.json`.
+- `requirements.txt`.
+- `.streamlit/secrets.toml` no debe subirse al repositorio; los secretos se configuran en Streamlit Cloud.
+- `.env` no debe subirse al repositorio.
+
+Si necesita regenerar los artefactos localmente:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\build_artifacts.py
+```
+
+En Streamlit Cloud, configure la variable `API_OPENAI` u `OPENAI_API_KEY` solo si va a regenerar o ampliar análisis que requieran la API. Para la versión publicada con artefactos precomputados, la app no debería llamar a OpenAI durante la carga inicial.
+
 ## Fuentes
 
 - Programa de Gobierno de Iván Cepeda: https://www.movimientopactohistorico.co/programa-gobierno
@@ -40,4 +59,6 @@ La app espera una variable `API_OPENAI` u `OPENAI_API_KEY` en `.env`. También p
 
 ## Notas metodológicas
 
-Esto mide cercanía semántica textual, no verdad, viabilidad, calidad técnica ni conveniencia electoral. Los programas tienen extensiones y formatos distintos; por eso la app compara fragmentos y muestra diagnósticos de extracción.
+Esto mide cercanía semántica textual, no verdad, viabilidad, calidad técnica ni conveniencia electoral. Los programas tienen extensiones y formatos distintos; por eso la app compara fragmentos, muestra diagnósticos de extracción y evita comparar candidaturas por volumen de páginas.
+
+Los ejes programáticos son una lectura asistida por reglas explícitas. Cada eje tiene dos polos sustantivos, por ejemplo mercado/Estado o punición/prevención, y la visualización muestra dirección e intensidad de forma exploratoria.

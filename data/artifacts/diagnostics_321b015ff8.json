@@ -81,11 +81,11 @@
     }
   ],
   "files": {
-    "chunks": "data\\artifacts\\chunks_321b015ff8.parquet",
-    "projection": "data\\artifacts\\projection_321b015ff8.parquet",
-    "terms": "data\\artifacts\\terms_321b015ff8.parquet",
-    "embeddings": "data\\artifacts\\embeddings_321b015ff8.npy",
-    "centroids": "data\\artifacts\\centroids_321b015ff8.npy",
-    "candidate_meta": "data\\artifacts\\candidate_meta_321b015ff8.parquet"
+    "chunks": "data/artifacts/chunks_321b015ff8.parquet",
+    "projection": "data/artifacts/projection_321b015ff8.parquet",
+    "terms": "data/artifacts/terms_321b015ff8.parquet",
+    "embeddings": "data/artifacts/embeddings_321b015ff8.npy",
+    "centroids": "data/artifacts/centroids_321b015ff8.npy",
+    "candidate_meta": "data/artifacts/candidate_meta_321b015ff8.parquet"
   }
 }
