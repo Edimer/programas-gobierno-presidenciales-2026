@@ -3,8 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from .embeddings import build_backend
-from .settings import DEFAULT_MODEL, TOP_K_CHUNKS
+from .settings import TOP_K_CHUNKS
 
 
 def cosine_scores(query_vectors: np.ndarray, matrix: np.ndarray) -> np.ndarray:
@@ -25,11 +24,22 @@ def candidate_similarity(
         empty["confidence"] = 0.0
         return empty, pd.DataFrame()
 
-    backend = build_backend(model_name or DEFAULT_MODEL, corpus=chunks["text"].tolist())
-    prefix = "" if model_name.startswith("text-embedding-") or model_name == "openai" else "query: "
-    query_texts = [f"{prefix}{item['topic']}. {item['answer']}" for item in valid]
-    query_vectors = backend.encode(query_texts)
-    sims = cosine_scores(query_vectors, embeddings)
+    from sklearn.feature_extraction.text import TfidfVectorizer
+
+    query_texts = [f"{item['topic']}. {item['answer']}" for item in valid]
+    chunk_texts = chunks["text"].fillna("").tolist()
+    vectorizer = TfidfVectorizer(
+        lowercase=True,
+        strip_accents="unicode",
+        ngram_range=(1, 2),
+        min_df=1,
+        max_df=0.92,
+        max_features=18_000,
+    )
+    vectorizer.fit(chunk_texts + query_texts)
+    query_vectors = vectorizer.transform(query_texts)
+    chunk_vectors = vectorizer.transform(chunk_texts)
+    sims = (query_vectors @ chunk_vectors.T).toarray()
 
     detail_rows = []
     score_rows = []
@@ -38,8 +48,11 @@ def candidate_similarity(
         candidate_sims = sims[:, idx]
         per_question = []
         for question_i, item in enumerate(valid):
-            ranked = np.argsort(candidate_sims[question_i])[::-1][:TOP_K_CHUNKS]
-            top_scores = candidate_sims[question_i][ranked]
+            question_scores = candidate_sims[question_i].copy()
+            same_topic = group["topic"].to_numpy() == item["topic"]
+            question_scores[same_topic] *= 1.12
+            ranked = np.argsort(question_scores)[::-1][:TOP_K_CHUNKS]
+            top_scores = question_scores[ranked]
             score = float(np.mean(top_scores[: min(5, len(top_scores))]))
             per_question.append(score * item["weight"])
             best_local = ranked[0]

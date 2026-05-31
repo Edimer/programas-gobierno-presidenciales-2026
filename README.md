@@ -6,7 +6,7 @@ Explorador semántico de programas presidenciales de Colombia 2026. La app extra
 - ejes programáticos interpretables por candidatura,
 - lectura temática normalizada dentro de cada programa,
 - conceptos distintivos por programa,
-- cuestionario ciudadano de selección múltiple con afinidad semántica.
+- cuestionario ciudadano de selección múltiple con afinidad textual local.
 
 ## Uso local
 
@@ -47,7 +47,7 @@ Si necesita regenerar los artefactos localmente:
 .\.venv\Scripts\python.exe scripts\build_artifacts.py
 ```
 
-En Streamlit Cloud, configure la variable `API_OPENAI` u `OPENAI_API_KEY` solo si va a regenerar o ampliar análisis que requieran la API. Para la versión publicada con artefactos precomputados, la app no debería llamar a OpenAI durante la carga inicial.
+En Streamlit Cloud, configure la variable `API_OPENAI` u `OPENAI_API_KEY` solo si va a regenerar o ampliar análisis que requieran la API. Para la versión publicada con artefactos precomputados, la app no debería llamar a OpenAI durante la carga inicial ni al calcular la afinidad ciudadana.
 
 ## Fuentes
 

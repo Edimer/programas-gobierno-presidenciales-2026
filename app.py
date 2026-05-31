@@ -216,7 +216,7 @@ with tabs[3]:
         3. Los fragmentos se convierten en embeddings semánticos precomputados. En esta versión se usa `{diagnostics["backend"]}`.
         4. El posicionamiento programático se calcula con una rúbrica de ejes explícitos. Cada eje tiene dos polos sustantivos, por ejemplo mercado/Estado o punición/prevención.
         5. La visualización usa UMAP + HDBSCAN para proyectar el mapa semántico y detectar agrupaciones de fragmentos.
-        6. La afinidad ciudadana compara respuestas de selección múltiple contra los fragmentos más similares por candidatura y pondera cada tema de 1 a 10.
+        6. La afinidad ciudadana compara respuestas de selección múltiple contra los fragmentos más cercanos por candidatura con un vectorizador local y pondera cada tema de 1 a 10.
 
         Repositorio del proyecto: [Edimer/programas-gobierno-presidenciales-2026](https://github.com/Edimer/programas-gobierno-presidenciales-2026).
         """

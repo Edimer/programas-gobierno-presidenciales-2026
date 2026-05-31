@@ -11,7 +11,7 @@ Este proyecto compara programas de gobierno presidenciales de Colombia 2026 con 
 5. **Cobertura de evidencia**: cada eje muestra qué proporción del programa contiene señales de la rúbrica. Un puntaje con baja cobertura debe leerse con más cautela.
 6. **Agrupación**: la app usa un mapa semántico para ubicar fragmentos cercanos y detectar agrupaciones de propuestas.
 7. **Conceptos distintivos**: el comparador prioriza frases de dos a cuatro palabras que aparecen con más fuerza en una candidatura que en las demás. Se excluyen nombres propios de candidaturas, números, pronombres, deícticos y expresiones genéricas.
-8. **Afinidad ciudadana**: las respuestas de selección múltiple se embeben y se comparan contra los fragmentos de cada candidatura. El puntaje final combina los fragmentos más similares por tema y pondera la importancia declarada de 1 a 10.
+8. **Afinidad ciudadana**: las respuestas de selección múltiple se comparan contra los fragmentos de cada candidatura con un vectorizador local. El puntaje final combina los fragmentos más cercanos por tema y pondera la importancia declarada de 1 a 10.
 
 Repositorio del proyecto: [Edimer/programas-gobierno-presidenciales-2026](https://github.com/Edimer/programas-gobierno-presidenciales-2026).
 
