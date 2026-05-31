@@ -8,13 +8,14 @@ import streamlit as st
 
 from src.io import load_candidates, load_questions
 from src.pipeline import infer_topic, latest_diagnostics, top_terms
+from src.positioning import programmatic_positions
 from src.scoring import candidate_similarity
 from src.settings import ROOT
-from src.visuals import projection_scatter, score_bars, similarity_heatmap, terms_chart
+from src.visuals import positioning_heatmap, projection_scatter, score_bars, terms_chart
 
 
 st.set_page_config(page_title="Programas presidenciales Colombia 2026", page_icon="🗳️", layout="wide")
-ARTIFACT_VIEW_VERSION = "conceptos-v4-diagonal-sin-texto"
+ARTIFACT_VIEW_VERSION = "ejes-programaticos-v1"
 
 st.markdown(
     """
@@ -111,6 +112,7 @@ except FileNotFoundError as exc:
     )
     st.caption(f"Detalle técnico: {exc}")
     st.stop()
+positions, position_evidence = programmatic_positions(chunks)
 source_rows = pd.DataFrame(diagnostics["source_pdfs"])
 canonical_names = pd.DataFrame(load_candidates()).set_index("id")["name"].to_dict()
 if "id" in source_rows:
@@ -118,7 +120,7 @@ if "id" in source_rows:
 pages_read = int(source_rows["pages_read"].sum()) if "pages_read" in source_rows else 0
 
 st.title("Programas presidenciales Colombia 2026")
-st.caption("Explorador semántico de propuestas: similitud, agrupación temática y afinidad por respuestas ciudadanas.")
+st.caption("Explorador semántico de propuestas: ejes programáticos, agrupación temática y afinidad por respuestas ciudadanas.")
 
 metric_cols = st.columns(4)
 metric_cols[0].metric("Programas revisados", f"{len(candidate_meta)}")
@@ -129,17 +131,31 @@ metric_cols[3].metric("Preguntas ciudadanas", f"{len(load_questions())}")
 tabs = st.tabs(["Mapa semántico", "Comparador", "Afinidad ciudadana", "Metodología"])
 
 with tabs[0]:
-    left, right = st.columns([1.45, 1])
-    with left:
-        st.subheader("Territorio semántico de los programas")
-        st.plotly_chart(projection_scatter(projected), width="stretch")
-    with right:
-        st.subheader("Similitud relativa entre candidaturas")
-        st.plotly_chart(similarity_heatmap(candidate_meta, chunks, embeddings), width="stretch")
-        st.caption("Cada punto del mapa es un fragmento del programa. La distancia es aproximada y sirve para explorar, no para ordenar ideológicamente.")
+    st.subheader("Territorio semántico de los programas")
+    st.plotly_chart(projection_scatter(projected), width="stretch")
+    st.subheader("Ejes programáticos")
+    st.caption("El texto dentro de cada celda muestra hacia qué polo se inclina cada programa. El color resume la dirección: ámbar hacia el polo de la izquierda y verde hacia el polo de la derecha.")
+    st.plotly_chart(positioning_heatmap(positions), width="stretch")
     st.subheader("Lectura temática por candidatura")
     st.caption("Resumen normalizado dentro de cada programa. No compara volumen de páginas ni cantidad absoluta de fragmentos.")
     st.dataframe(topic_summary(projected), hide_index=True, width="stretch")
+    with st.expander("Cómo leer los ejes programáticos"):
+        axis_labels = positions.drop_duplicates("axis")[["axis", "negative_label", "positive_label"]]
+        axis_labels = axis_labels.rename(columns={"axis": "Eje", "negative_label": "Polo izquierdo", "positive_label": "Polo derecho"})
+        st.dataframe(axis_labels, hide_index=True, width="stretch")
+        st.write("La intensidad se lee como leve, media o fuerte según la distancia frente al centro. La cobertura indica qué proporción de fragmentos contiene señales de la rúbrica de ese eje.")
+    with st.expander("Evidencia de los ejes"):
+        selected_axis = st.selectbox("Eje", positions["axis"].drop_duplicates().tolist())
+        evidence_subset = position_evidence[position_evidence["axis"] == selected_axis]
+        for candidate_name in positions["candidate"].drop_duplicates():
+            rows = evidence_subset[evidence_subset["candidate"] == candidate_name].head(2)
+            if rows.empty:
+                continue
+            st.markdown(f"**{candidate_name}**")
+            for _, row in rows.iterrows():
+                signal_terms = row["positive_terms"] or row["negative_terms"]
+                st.caption(f"Señales: {signal_terms}")
+                st.write(row["evidence"] + "...")
 
 with tabs[1]:
     candidate = st.selectbox("Candidatura", candidate_meta["candidate"].tolist())
@@ -198,7 +214,7 @@ with tabs[3]:
         1. Se extrae texto de los programas oficiales enlazados en la barra lateral.
         2. Cada programa se divide en fragmentos solapados para comparar ideas concretas, no documentos enteros.
         3. Los fragmentos se convierten en embeddings semánticos precomputados. En esta versión se usa `{diagnostics["backend"]}`.
-        4. La similitud general entre candidaturas se calcula sobre centroides centrados respecto al corpus completo, para evitar que todos los programas aparezcan artificialmente iguales.
+        4. El posicionamiento programático se calcula con una rúbrica de ejes explícitos. Cada eje tiene dos polos sustantivos, por ejemplo mercado/Estado o punición/prevención.
         5. La visualización usa UMAP + HDBSCAN para proyectar el mapa semántico y detectar agrupaciones de fragmentos.
         6. La afinidad ciudadana compara respuestas de selección múltiple contra los fragmentos más similares por candidatura y pondera cada tema de 1 a 10.
 

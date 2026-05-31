@@ -9,6 +9,38 @@ import plotly.graph_objects as go
 TEMPLATE = "plotly_white"
 
 
+SHORT_AXIS_LABELS = {
+    "Mercado / Estado": "Mercado ←→ Estado",
+    "Seguridad": "Punición ←→ Prevención",
+    "Paz y conflicto": "Confrontación ←→ Negociación",
+    "Ambiente y energía": "Extractivismo ←→ Transición",
+    "Política social": "Focalización ←→ Universalismo",
+    "Instituciones": "Autoridad ←→ Reforma",
+    "Economía fiscal": "Austeridad ←→ Inversión pública",
+}
+
+
+SHORT_POLE_LABELS = {
+    "Prevención y derechos": "Prevención",
+    "Transición ecológica": "Transición",
+    "Participación y reforma": "Reforma",
+    "Orden y autoridad": "Autoridad",
+    "Austeridad e impuestos bajos": "Austeridad",
+    "Inversión pública y progresividad": "Inversión pública",
+}
+
+
+def readable_position(row: pd.Series) -> str:
+    score = float(row["score"])
+    absolute_score = abs(score)
+    if absolute_score < 0.15:
+        return "Mixto"
+    intensity = "fuerte" if absolute_score >= 0.7 else "media" if absolute_score >= 0.4 else "leve"
+    label = row["positive_label"] if score > 0 else row["negative_label"]
+    label = SHORT_POLE_LABELS.get(label, label)
+    return f"{label}<br>{intensity}"
+
+
 def relative_candidate_similarity(chunks: pd.DataFrame, embeddings: np.ndarray) -> np.ndarray:
     centered = embeddings - embeddings.mean(axis=0, keepdims=True)
     norms = np.linalg.norm(centered, axis=1, keepdims=True)
@@ -53,6 +85,54 @@ def similarity_heatmap(candidate_meta: pd.DataFrame, chunks: pd.DataFrame, embed
         )
     )
     fig.update_layout(template=TEMPLATE, height=430, margin=dict(l=10, r=10, t=20, b=10), coloraxis_showscale=False)
+    return fig
+
+
+def positioning_heatmap(positions: pd.DataFrame) -> go.Figure:
+    matrix = positions.pivot(index="candidate", columns="axis", values="score")
+    candidate_order = positions.drop_duplicates("candidate")["candidate"].tolist()
+    axis_order = positions.drop_duplicates("axis")["axis"].tolist()
+    matrix = matrix.reindex(index=candidate_order, columns=axis_order)
+    label_lookup = {
+        (row["candidate"], row["axis"]): readable_position(row)
+        for _, row in positions.iterrows()
+    }
+    text = matrix.copy().astype(object)
+    for candidate in matrix.index:
+        for axis in matrix.columns:
+            text.loc[candidate, axis] = label_lookup.get((candidate, axis), "")
+    hover = []
+    for candidate in matrix.index:
+        row_hover = []
+        for axis in matrix.columns:
+            row = positions[(positions["candidate"] == candidate) & (positions["axis"] == axis)].iloc[0]
+            row_hover.append(
+                f"<b>{candidate}</b><br>{axis}<br>"
+                f"{row['negative_label']} ← {row['score']:+.2f} → {row['positive_label']}<br>"
+                f"Cobertura de evidencia: {row['coverage']:.1%}<extra></extra>"
+            )
+        hover.append(row_hover)
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=matrix.to_numpy(),
+            x=matrix.columns,
+            y=matrix.index,
+            zmin=-1,
+            zmax=1,
+            colorscale=[[0, "#B45309"], [0.5, "#F8FAFC"], [1, "#0F766E"]],
+            text=text.to_numpy(),
+            texttemplate="%{text}",
+            hovertemplate=hover,
+            showscale=False,
+        )
+    )
+    fig.update_layout(template=TEMPLATE, height=500, margin=dict(l=10, r=10, t=20, b=20))
+    fig.update_xaxes(
+        tickangle=-20,
+        tickmode="array",
+        tickvals=axis_order,
+        ticktext=[SHORT_AXIS_LABELS.get(axis, axis) for axis in axis_order],
+    )
     return fig
 
 
